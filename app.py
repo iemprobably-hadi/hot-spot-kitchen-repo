@@ -4,9 +4,10 @@ import os
 
 app = Flask(__name__)
 
-# Create a data directory if it doesn't exist
-if not os.path.exists('data'):
-    os.makedirs('data')
+# --- REMOVED FOR VERCEL ---
+# Vercel is read-only, so we cannot create folders or write files.
+# if not os.path.exists('data'):
+#     os.makedirs('data')
 
 # Route for serving HTML pages
 @app.route('/')
@@ -50,14 +51,13 @@ Number of Guests: {guests}
 Occasion: {occasion}
 Special Requests: {special_request}
 {'='*50}
-
 """
         
-        # Save to file
-        with open('data/reservations.txt', 'a', encoding='utf-8') as f:
-            f.write(reservation_data)
+        # --- FILE SAVING REMOVED FOR VERCEL ---
+        # with open('data/reservations.txt', 'a', encoding='utf-8') as f:
+        #     f.write(reservation_data)
         
-        # Print to console
+        # Print to Vercel Logs (View this in Vercel Dashboard -> Logs)
         print(reservation_data)
         
         # Return success response
@@ -110,14 +110,13 @@ Years of Experience: {experience}
 Availability: {availability}
 Why Hot Spot Kitchen: {message}
 {'='*50}
-
 """
         
-        # Save to file
-        with open('data/applications.txt', 'a', encoding='utf-8') as f:
-            f.write(application_data)
+        # --- FILE SAVING REMOVED FOR VERCEL ---
+        # with open('data/applications.txt', 'a', encoding='utf-8') as f:
+        #     f.write(application_data)
         
-        # Print to console
+        # Print to Vercel Logs
         print(application_data)
         
         # Return success response
@@ -142,16 +141,12 @@ Why Hot Spot Kitchen: {message}
 @app.route('/submit-contact', methods=['POST'])
 def submit_contact():
     try:
-        # Get form data
         name = request.form.get('name')
         email = request.form.get('email')
         subject = request.form.get('subject')
         message = request.form.get('message')
-        
-        # Create timestamp
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-        # Create contact data
         contact_data = f"""
 {'='*50}
 CONTACT FORM SUBMITTED
@@ -162,17 +157,10 @@ Email: {email}
 Subject: {subject}
 Message: {message}
 {'='*50}
-
 """
-        
-        # Save to file
-        with open('data/contacts.txt', 'a', encoding='utf-8') as f:
-            f.write(contact_data)
-        
-        # Print to console
+        # Print to Vercel Logs instead of saving file
         print(contact_data)
         
-        # Return success response
         return jsonify({
             'status': 'success',
             'message': f'Thank you, {name}! We have received your message and will get back to you soon.'
@@ -185,31 +173,14 @@ Message: {message}
             'message': 'There was an error sending your message. Please try again.'
         }), 500
 
-# ===== VIEW RESERVATIONS (Admin) =====
+# ===== ADMIN ROUTES (Modified to not crash) =====
 @app.route('/admin/reservations')
 def view_reservations():
-    try:
-        if os.path.exists('data/reservations.txt'):
-            with open('data/reservations.txt', 'r', encoding='utf-8') as f:
-                reservations = f.read()
-            return f"<pre>{reservations}</pre>"
-        else:
-            return "<h2>No reservations yet.</h2>"
-    except Exception as e:
-        return f"<h2>Error: {str(e)}</h2>"
+    return "<h2>File storage is disabled on Vercel. Please check Vercel Dashboard > Logs to see submissions.</h2>"
 
-# ===== VIEW APPLICATIONS (Admin) =====
 @app.route('/admin/applications')
 def view_applications():
-    try:
-        if os.path.exists('data/applications.txt'):
-            with open('data/applications.txt', 'r', encoding='utf-8') as f:
-                applications = f.read()
-            return f"<pre>{applications}</pre>"
-        else:
-            return "<h2>No applications yet.</h2>"
-    except Exception as e:
-        return f"<h2>Error: {str(e)}</h2>"
+    return "<h2>File storage is disabled on Vercel. Please check Vercel Dashboard > Logs to see submissions.</h2>"
 
 # ===== ERROR HANDLERS =====
 @app.errorhandler(404)
@@ -220,11 +191,6 @@ def not_found(e):
 def server_error(e):
     return "<h1>500 - Server Error</h1><p>Something went wrong on our end. Please try again later.</p>", 500
 
+# Main block
 if __name__ == '__main__':
-    print("="*50)
-    print("🍔 Hot Spot Kitchen Server Starting... 🍔")
-    print("="*50)
-    print("Server running at: http://127.0.0.1:5000")
-    print("Press CTRL+C to stop the server")
-    print("="*50)
     app.run(debug=True, host='0.0.0.0', port=5000)
